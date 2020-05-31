@@ -11,7 +11,11 @@ TELEGRAM_USER_CHAT_ID = os.environ['TELEGRAM_USER_CHAT_ID']
 
 
 def init_telegram_bot():
-    proxy_request = telegram.utils.request.Request(proxy_url='socks5://{}'.format(SOCKS5_PROXY))
+    if len(SOCKS5_PROXY) == 0:
+        proxy_request = None
+    else:
+        proxy_request = telegram.utils.request.Request(proxy_url='socks5://{}'.format(SOCKS5_PROXY))
+
     return telegram.Bot(token=TELEGRAM_BOT_TOKEN, request=proxy_request)
 
 
@@ -49,7 +53,7 @@ while True:
                 else:
                     lesson_result_message = 'Преподавателю всё понравилось, можно приступать к следующему уроку!'
 
-                message = 'У вас проверили работу "{}"\n\n{}.'.format(lesson_title, lesson_result_message)
+                message = 'У вас проверили работу "{}".\n\n{}'.format(lesson_title, lesson_result_message)
                 send_message(bot, message)
 
             query_timestamp = None
