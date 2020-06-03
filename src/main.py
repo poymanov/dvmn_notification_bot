@@ -3,18 +3,18 @@ import os
 import time
 import telegram
 
-API_URL = os.environ['API_URL']
-AUTH_TOKEN = os.environ['AUTH_TOKEN']
+DEVMAN_API_URL = os.environ['DEVMAN_API_URL']
+DEVMAN_AUTH_TOKEN = os.environ['DEVMAN_AUTH_TOKEN']
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
-SOCKS5_PROXY = os.environ['SOCKS5_PROXY']
+TELEGRAM_SOCKS5_PROXY = os.environ['TELEGRAM_SOCKS5_PROXY']
 TELEGRAM_USER_CHAT_ID = os.environ['TELEGRAM_USER_CHAT_ID']
 
 
 def init_telegram_bot():
-    if len(SOCKS5_PROXY) == 0:
+    if len(TELEGRAM_SOCKS5_PROXY) == 0:
         proxy_request = None
     else:
-        proxy_request = telegram.utils.request.Request(proxy_url='socks5://{}'.format(SOCKS5_PROXY))
+        proxy_request = telegram.utils.request.Request(proxy_url='socks5://{}'.format(TELEGRAM_SOCKS5_PROXY))
 
     return telegram.Bot(token=TELEGRAM_BOT_TOKEN, request=proxy_request)
 
@@ -29,13 +29,13 @@ bot = init_telegram_bot()
 
 while True:
     try:
-        headers = {'Authorization': 'Token {}'.format(AUTH_TOKEN)}
+        headers = {'Authorization': 'Token {}'.format(DEVMAN_AUTH_TOKEN)}
         params = {}
 
         if query_timestamp is not None:
             params['timestamp'] = query_timestamp
 
-        response = requests.get(API_URL, headers=headers, params=params)
+        response = requests.get(DEVMAN_API_URL, headers=headers, params=params)
         response_data = response.json()
 
         response_data_status = response_data['status']

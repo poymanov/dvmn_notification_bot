@@ -18,7 +18,7 @@ make init
 Токен авторизации на dvmn:
 
 ```
-AUTH_TOKEN=
+DEVMAN_AUTH_TOKEN=
 ```
 
 Токен бота в Telegram:
@@ -35,7 +35,7 @@ TELEGRAM_USER_CHAT_ID=
 Sock5-адрес прокси для отправки сообщений в Telegram (**если необходимо**):
  
 ```
-SOCKS5_PROXY=IP:PORT
+TELEGRAM_SOCKS5_PROXY=IP:PORT
 ```
 
 ### Запуск
