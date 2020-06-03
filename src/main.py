@@ -11,7 +11,7 @@ TELEGRAM_USER_CHAT_ID = os.environ['TELEGRAM_USER_CHAT_ID']
 
 
 def init_telegram_bot():
-    if len(TELEGRAM_SOCKS5_PROXY) == 0:
+    if not TELEGRAM_SOCKS5_PROXY:
         proxy_request = None
     else:
         proxy_request = telegram.utils.request.Request(proxy_url='socks5://{}'.format(TELEGRAM_SOCKS5_PROXY))
