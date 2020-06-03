@@ -43,20 +43,21 @@ def main():
 
             if response_data_status == 'timeout':
                 query_timestamp = response_data['timestamp_to_request']
+            elif response_data_status == 'found':
+                attempt_data = response_data['new_attempts'][0]
+                lesson_title = attempt_data['lesson_title']
+                lesson_negative = attempt_data['is_negative']
+
+                if lesson_negative is True:
+                    lesson_result_message = 'К сожалению, в работе нашлись ошибки.'
+                else:
+                    lesson_result_message = 'Преподавателю всё понравилось, можно приступать к следующему уроку!'
+
+                message = 'У вас проверили работу "{}".\n\n{}'.format(lesson_title, lesson_result_message)
+                bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
+
+                query_timestamp = time.time()
             else:
-                if response_data_status == 'found':
-                    attempt_data = response_data['new_attempts'][0]
-                    lesson_title = attempt_data['lesson_title']
-                    lesson_negative = attempt_data['is_negative']
-
-                    if lesson_negative is True:
-                        lesson_result_message = 'К сожалению, в работе нашлись ошибки.'
-                    else:
-                        lesson_result_message = 'Преподавателю всё понравилось, можно приступать к следующему уроку!'
-
-                    message = 'У вас проверили работу "{}".\n\n{}'.format(lesson_title, lesson_result_message)
-                    bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
-
                 query_timestamp = None
         except (requests.exceptions.ReadTimeout, ConnectionError):
             time.sleep(5)
