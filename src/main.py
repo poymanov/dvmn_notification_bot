@@ -29,10 +29,14 @@ def main():
             headers = {'Authorization': 'Token {}'.format(DEVMAN_AUTH_TOKEN)}
             params = {}
 
-            if query_timestamp is not None:
+            if query_timestamp:
                 params['timestamp'] = query_timestamp
 
             response = requests.get(DEVMAN_API_URL, headers=headers, params=params)
+
+            if not response.ok:
+                raise ConnectionError
+
             response_data = response.json()
 
             response_data_status = response_data['status']
@@ -57,6 +61,7 @@ def main():
         except (requests.exceptions.ReadTimeout, ConnectionError):
             time.sleep(5)
             continue
+
 
 if __name__ == '__main__':
     main()
