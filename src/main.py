@@ -32,7 +32,7 @@ def main():
             if query_timestamp:
                 params['timestamp'] = query_timestamp
 
-            response = requests.get(DEVMAN_API_URL, headers=headers, params=params)
+            response = requests.get(DEVMAN_API_URL, headers=headers, params=params, timeout=90)
             response.raise_for_status()
 
             response_data = response.json()
@@ -45,8 +45,9 @@ def main():
                 attempt_data = response_data['new_attempts'][0]
                 lesson_title = attempt_data['lesson_title']
                 lesson_negative = attempt_data['is_negative']
+                last_attempt_timestamp = response_data['last_attempt_timestamp']
 
-                if lesson_negative is True:
+                if lesson_negative:
                     lesson_result_message = 'К сожалению, в работе нашлись ошибки.'
                 else:
                     lesson_result_message = 'Преподавателю всё понравилось, можно приступать к следующему уроку!'
@@ -54,7 +55,7 @@ def main():
                 message = 'У вас проверили работу "{}".\n\n{}'.format(lesson_title, lesson_result_message)
                 bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
 
-                query_timestamp = time.time()
+                query_timestamp = last_attempt_timestamp
             else:
                 query_timestamp = None
         except (requests.exceptions.ReadTimeout, requests.HTTPError):
