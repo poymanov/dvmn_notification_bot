@@ -33,9 +33,7 @@ def main():
                 params['timestamp'] = query_timestamp
 
             response = requests.get(DEVMAN_API_URL, headers=headers, params=params)
-
-            if not response.ok:
-                raise ConnectionError
+            response.raise_for_status()
 
             response_data = response.json()
 
@@ -59,7 +57,7 @@ def main():
                 query_timestamp = time.time()
             else:
                 query_timestamp = None
-        except (requests.exceptions.ReadTimeout, ConnectionError):
+        except (requests.exceptions.ReadTimeout, requests.HTTPError):
             time.sleep(5)
             continue
 
