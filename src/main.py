@@ -1,6 +1,5 @@
 import requests
 import os
-import time
 import telegram
 
 DEVMAN_API_URL = os.environ['DEVMAN_API_URL']
@@ -59,7 +58,6 @@ def main():
             else:
                 query_timestamp = None
         except (requests.exceptions.ReadTimeout, requests.HTTPError):
-            time.sleep(5)
             continue
 
 
