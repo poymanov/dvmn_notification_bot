@@ -1,6 +1,7 @@
 import requests
 import os
 import telegram
+import time
 
 DEVMAN_API_URL = os.environ['DEVMAN_API_URL']
 DEVMAN_AUTH_TOKEN = os.environ['DEVMAN_AUTH_TOKEN']
@@ -20,6 +21,7 @@ def init_telegram_bot():
 
 def main():
     query_timestamp = None
+    need_connection_timeout = False
 
     bot = init_telegram_bot()
 
@@ -63,6 +65,12 @@ def main():
             message = 'Ошибка подключения к сервису dvmn.org'
             bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
             print(message)
+            continue
+        except requests.ConnectionError:
+            if need_connection_timeout:
+                time.sleep(5)
+            else:
+                need_connection_timeout = True
             continue
 
 
