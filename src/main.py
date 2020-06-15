@@ -57,7 +57,12 @@ def main():
                 query_timestamp = last_attempt_timestamp
             else:
                 query_timestamp = None
-        except (requests.exceptions.ReadTimeout, requests.HTTPError):
+        except requests.exceptions.ReadTimeout:
+            continue
+        except requests.HTTPError:
+            message = 'Ошибка подключения к сервису dvmn.org'
+            bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
+            print(message)
             continue
 
 
