@@ -37,7 +37,6 @@ def init_telegram_bot(token):
 
 def main():
     query_timestamp = None
-    need_connection_timeout = False
 
     notification_bot = init_telegram_bot(TELEGRAM_NOTIFICATION_BOT_TOKEN)
 
@@ -46,10 +45,7 @@ def main():
     while True:
         try:
             headers = {'Authorization': 'Token {}'.format(DEVMAN_AUTH_TOKEN)}
-            params = {}
-
-            if query_timestamp:
-                params['timestamp'] = query_timestamp
+            params = {'timestamp': query_timestamp}
 
             response = requests.get(DEVMAN_API_URL, headers=headers, params=params, timeout=90)
             response.raise_for_status()
@@ -77,18 +73,12 @@ def main():
                 query_timestamp = last_attempt_timestamp
             else:
                 query_timestamp = None
-        except requests.exceptions.ReadTimeout:
+        except (requests.exceptions.ReadTimeout, requests.ConnectionError):
             continue
         except requests.HTTPError:
             message = 'Ошибка подключения к сервису dvmn.org'
             notification_bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
             logger.warning(message)
-            continue
-        except requests.ConnectionError:
-            if need_connection_timeout:
-                time.sleep(5)
-            else:
-                need_connection_timeout = True
             continue
         except Exception:
             logger.exception('Бот упал с ошибкой')
