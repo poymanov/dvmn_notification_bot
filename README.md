@@ -15,16 +15,22 @@ make init
 
 В файле `.env` заполнить:
 
-Токен авторизации на dvmn:
+Токен авторизации на [dvmn](https://dvmn.org/api/docs/):
 
 ```
 DEVMAN_AUTH_TOKEN=
 ```
 
-Токен бота в Telegram:
+Токен бота в Telegram (для получения данных от dvmn):
 
 ```
-TELEGRAM_BOT_TOKEN=
+TELEGRAM_NOTIFICATION_BOT_TOKEN=
+```
+
+Токен бота в Telegram (для логирования ошибок работы предыдущего бота):
+
+```
+TELEGRAM_ADMIN_BOT_TOKEN=
 ```
 
 Идентификатор пользователя, которому необходимо отправлять сообщения:
