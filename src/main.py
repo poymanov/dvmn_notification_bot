@@ -12,6 +12,9 @@ TELEGRAM_SOCKS5_PROXY = os.environ['TELEGRAM_SOCKS5_PROXY']
 TELEGRAM_USER_CHAT_ID = os.environ['TELEGRAM_USER_CHAT_ID']
 
 
+logger = logging.getLogger(__file__)
+
+
 class TelegramLogsHandler(logging.Handler):
     def __init__(self, tg_bot, chat_id):
         super().__init__()
@@ -21,14 +24,6 @@ class TelegramLogsHandler(logging.Handler):
     def emit(self, record):
         log_entry = self.format(record)
         self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
-
-
-def init_logger(bot):
-    logger = logging.getLogger('Logger')
-    logger.setLevel(logging.WARNING)
-    logger.addHandler(TelegramLogsHandler(bot, TELEGRAM_USER_CHAT_ID))
-
-    return logger
 
 
 def init_telegram_bot(token):
@@ -45,9 +40,7 @@ def main():
     need_connection_timeout = False
 
     notification_bot = init_telegram_bot(TELEGRAM_NOTIFICATION_BOT_TOKEN)
-    admin_bot = init_telegram_bot(TELEGRAM_ADMIN_BOT_TOKEN)
 
-    logger = init_logger(admin_bot)
     logger.warning('Бот запущен')
 
     while True:
@@ -102,4 +95,9 @@ def main():
 
 
 if __name__ == '__main__':
+    admin_bot = init_telegram_bot(TELEGRAM_ADMIN_BOT_TOKEN)
+
+    logger.setLevel(logging.WARNING)
+    logger.addHandler(TelegramLogsHandler(admin_bot, TELEGRAM_USER_CHAT_ID))
+
     main()
