@@ -89,7 +89,7 @@ def main():
         except requests.HTTPError:
             message = 'Ошибка подключения к сервису dvmn.org'
             notification_bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
-            print(message)
+            logger.warning(message)
             continue
         except requests.ConnectionError:
             if need_connection_timeout:
@@ -97,6 +97,8 @@ def main():
             else:
                 need_connection_timeout = True
             continue
+        except Exception:
+            logger.exception('Бот упал с ошибкой')
 
 
 if __name__ == '__main__':
