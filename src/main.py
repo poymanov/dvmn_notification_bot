@@ -2,6 +2,7 @@ import requests
 import os
 import telegram
 import time
+import logging
 
 DEVMAN_API_URL = os.environ['DEVMAN_API_URL']
 DEVMAN_AUTH_TOKEN = os.environ['DEVMAN_AUTH_TOKEN']
@@ -24,6 +25,8 @@ def main():
     need_connection_timeout = False
 
     bot = init_telegram_bot()
+
+    logging.warning('Бот запущен')
 
     while True:
         try:
