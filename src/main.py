@@ -6,27 +6,49 @@ import logging
 
 DEVMAN_API_URL = os.environ['DEVMAN_API_URL']
 DEVMAN_AUTH_TOKEN = os.environ['DEVMAN_AUTH_TOKEN']
-TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
+TELEGRAM_NOTIFICATION_BOT_TOKEN = os.environ['TELEGRAM_NOTIFICATION_BOT_TOKEN']
+TELEGRAM_ADMIN_BOT_TOKEN = os.environ['TELEGRAM_ADMIN_BOT_TOKEN']
 TELEGRAM_SOCKS5_PROXY = os.environ['TELEGRAM_SOCKS5_PROXY']
 TELEGRAM_USER_CHAT_ID = os.environ['TELEGRAM_USER_CHAT_ID']
 
 
-def init_telegram_bot():
+class TelegramLogsHandler(logging.Handler):
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
+
+
+def init_logger(bot):
+    logger = logging.getLogger('Logger')
+    logger.setLevel(logging.WARNING)
+    logger.addHandler(TelegramLogsHandler(bot, TELEGRAM_USER_CHAT_ID))
+
+    return logger
+
+
+def init_telegram_bot(token):
     proxy_request = None
 
     if TELEGRAM_SOCKS5_PROXY:
         proxy_request = telegram.utils.request.Request(proxy_url='socks5://{}'.format(TELEGRAM_SOCKS5_PROXY))
 
-    return telegram.Bot(token=TELEGRAM_BOT_TOKEN, request=proxy_request)
+    return telegram.Bot(token=token, request=proxy_request)
 
 
 def main():
     query_timestamp = None
     need_connection_timeout = False
 
-    bot = init_telegram_bot()
+    notification_bot = init_telegram_bot(TELEGRAM_NOTIFICATION_BOT_TOKEN)
+    admin_bot = init_telegram_bot(TELEGRAM_ADMIN_BOT_TOKEN)
 
-    logging.warning('Бот запущен')
+    logger = init_logger(admin_bot)
+    logger.warning('Бот запущен')
 
     while True:
         try:
@@ -57,7 +79,7 @@ def main():
                     lesson_result_message = 'Преподавателю всё понравилось, можно приступать к следующему уроку!'
 
                 message = 'У вас проверили работу "{}".\n\n{}'.format(lesson_title, lesson_result_message)
-                bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
+                notification_bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
 
                 query_timestamp = last_attempt_timestamp
             else:
@@ -66,7 +88,7 @@ def main():
             continue
         except requests.HTTPError:
             message = 'Ошибка подключения к сервису dvmn.org'
-            bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
+            notification_bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
             print(message)
             continue
         except requests.ConnectionError:
