@@ -10,6 +10,7 @@ TELEGRAM_NOTIFICATION_BOT_TOKEN = os.environ['TELEGRAM_NOTIFICATION_BOT_TOKEN']
 TELEGRAM_ADMIN_BOT_TOKEN = os.environ['TELEGRAM_ADMIN_BOT_TOKEN']
 TELEGRAM_SOCKS5_PROXY = os.environ['TELEGRAM_SOCKS5_PROXY']
 TELEGRAM_USER_CHAT_ID = os.environ['TELEGRAM_USER_CHAT_ID']
+TOO_MANY_ATTEMPTS_COUNT = os.environ['TOO_MANY_ATTEMPTS_COUNT']
 
 logger = logging.getLogger(__file__)
 
@@ -36,6 +37,7 @@ def init_telegram_bot(token):
 
 def main():
     query_timestamp = None
+    failed_attempts = 0
 
     notification_bot = init_telegram_bot(TELEGRAM_NOTIFICATION_BOT_TOKEN)
     admin_bot = init_telegram_bot(TELEGRAM_ADMIN_BOT_TOKEN)
@@ -76,15 +78,12 @@ def main():
                 query_timestamp = last_attempt_timestamp
             else:
                 query_timestamp = None
-        except (requests.exceptions.ReadTimeout, requests.ConnectionError):
-            continue
-        except requests.HTTPError:
-            message = 'Ошибка подключения к сервису dvmn.org'
-            notification_bot.send_message(chat_id=TELEGRAM_USER_CHAT_ID, text=message)
-            logger.warning(message)
-            continue
         except Exception:
             logger.exception('Бот упал с ошибкой')
+            failed_attempts += 1
+
+            if failed_attempts >= TOO_MANY_ATTEMPTS_COUNT:
+                time.sleep(60)
 
 
 if __name__ == '__main__':
