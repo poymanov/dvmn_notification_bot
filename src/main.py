@@ -11,7 +11,6 @@ TELEGRAM_ADMIN_BOT_TOKEN = os.environ['TELEGRAM_ADMIN_BOT_TOKEN']
 TELEGRAM_SOCKS5_PROXY = os.environ['TELEGRAM_SOCKS5_PROXY']
 TELEGRAM_USER_CHAT_ID = os.environ['TELEGRAM_USER_CHAT_ID']
 
-
 logger = logging.getLogger(__file__)
 
 
@@ -39,6 +38,10 @@ def main():
     query_timestamp = None
 
     notification_bot = init_telegram_bot(TELEGRAM_NOTIFICATION_BOT_TOKEN)
+    admin_bot = init_telegram_bot(TELEGRAM_ADMIN_BOT_TOKEN)
+
+    logger.setLevel(logging.WARNING)
+    logger.addHandler(TelegramLogsHandler(admin_bot, TELEGRAM_USER_CHAT_ID))
 
     logger.warning('Бот запущен')
 
@@ -85,9 +88,4 @@ def main():
 
 
 if __name__ == '__main__':
-    admin_bot = init_telegram_bot(TELEGRAM_ADMIN_BOT_TOKEN)
-
-    logger.setLevel(logging.WARNING)
-    logger.addHandler(TelegramLogsHandler(admin_bot, TELEGRAM_USER_CHAT_ID))
-
     main()
